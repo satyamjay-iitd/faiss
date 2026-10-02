@@ -133,6 +133,7 @@ set(FAISS_SRC
   IndexAdditiveQuantizerFastScan.cpp
   IndexIVFIndependentQuantizer.cpp
   IndexPQFastScan.cpp
+  IndexPCATemporalDCT.cpp
   IndexPreTransform.cpp
   IndexRaBitQ.cpp
   IndexRaBitQFastScan.cpp
@@ -167,6 +168,8 @@ set(FAISS_SRC
   impl/pq_code_distance/pq_code_distance-generic.cpp
   impl/pq_code_distance/IVFPQ_QueryTables.cpp
   impl/AdditiveQuantizer.cpp
+  impl/DCTMatrix.cpp
+  impl/EntropyCoder.cpp
   impl/scalar_quantizer/EDENQuantizer.cpp
   impl/RaBitQuantizer.cpp
   impl/RaBitQuantizerMultiBit.cpp
@@ -266,6 +269,7 @@ set(FAISS_HEADERS
   IndexFastScan.h
   IndexAdditiveQuantizerFastScan.h
   IndexPQFastScan.h
+  IndexPCATemporalDCT.h
   IndexPreTransform.h
   IndexRefine.h
   IndexReplicas.h
@@ -315,6 +319,8 @@ set(FAISS_HEADERS
   impl/ProductQuantizer-inl.h
   impl/ProductQuantizer.h
   impl/Quantizer.h
+  impl/DCTMatrix.h
+  impl/EntropyCoder.h
   impl/RaBitQuantizer.h
   impl/RaBitQuantizerMultiBit.h
   impl/RaBitQUtils.h
@@ -730,6 +736,14 @@ target_link_libraries(faiss_avx2 PRIVATE OpenMP::OpenMP_CXX)
 target_link_libraries(faiss_avx512 PRIVATE OpenMP::OpenMP_CXX)
 target_link_libraries(faiss_avx512_spr PRIVATE OpenMP::OpenMP_CXX)
 target_link_libraries(faiss_sve PRIVATE OpenMP::OpenMP_CXX)
+
+# Used by impl/EntropyCoder.cpp (IndexPCATemporalDCT's storage entropy coding).
+find_package(ZLIB REQUIRED)
+target_link_libraries(faiss PRIVATE ZLIB::ZLIB)
+target_link_libraries(faiss_avx2 PRIVATE ZLIB::ZLIB)
+target_link_libraries(faiss_avx512 PRIVATE ZLIB::ZLIB)
+target_link_libraries(faiss_avx512_spr PRIVATE ZLIB::ZLIB)
+target_link_libraries(faiss_sve PRIVATE ZLIB::ZLIB)
 
 if(FAISS_ENABLE_MKL)
   find_package(MKL)

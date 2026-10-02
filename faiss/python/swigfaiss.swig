@@ -214,6 +214,8 @@ typedef uint64_t size_t;
 #include <faiss/IndexRaBitQFastScan.h>
 #include <faiss/IndexIVFRaBitQ.h>
 #include <faiss/IndexIVFRaBitQFastScan.h>
+#include <faiss/impl/DCTMatrix.h>
+#include <faiss/IndexPCATemporalDCT.h>
 
 #ifdef FAISS_ENABLE_SVS
 #include <faiss/svs/IndexSVSVamana.h>
@@ -732,6 +734,24 @@ void gpu_sync_all_devices()
 %include <faiss/IndexRaBitQFastScan.h>
 %include <faiss/IndexIVFRaBitQ.h>
 %include <faiss/IndexIVFRaBitQFastScan.h>
+%include <faiss/impl/DCTMatrix.h>
+
+// The compressed-segment internals are implementation details not meant for
+// the Python API surface (SWIG also can't wrap the nested Segment struct --
+// "Nested struct not currently supported" -- or the unordered_map-typed
+// caches keyed off it), so ignore them and the private helpers that return
+// references into them; train/add/search/reconstruct/reconstruct_n/reset
+// remain fully wrapped.
+%ignore faiss::IndexPCATemporalDCT::Segment;
+%ignore faiss::IndexPCATemporalDCT::segments;
+%ignore faiss::IndexPCATemporalDCT::reduced_vectors;
+%ignore faiss::IndexPCATemporalDCT::dct_basis_cache;
+%ignore faiss::IndexPCATemporalDCT::qtable_cache;
+%ignore faiss::IndexPCATemporalDCT::get_dct_basis;
+%ignore faiss::IndexPCATemporalDCT::get_qtable;
+%ignore faiss::IndexPCATemporalDCT::pca_unproject;
+%ignore faiss::IndexPCATemporalDCT::segment_for_id;
+%include <faiss/IndexPCATemporalDCT.h>
 
 %ignore faiss::BufferList::Buffer;
 %ignore faiss::RangeSearchPartialResult::QueryResult;
@@ -864,6 +884,7 @@ typedef int cudaDataType_t;
     DOWNCAST ( IndexRaBitQ )
     DOWNCAST ( IndexIVFRaBitQ )
     DOWNCAST ( IndexIVFRaBitQFastScan )
+    DOWNCAST ( IndexPCATemporalDCT )
     DOWNCAST ( IndexIVFIndependentQuantizer)
     DOWNCAST ( IndexIVFPQR )
     DOWNCAST ( IndexIVFPQ )
